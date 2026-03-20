@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lovci slovních druhů</title>
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --card: #ffffff;
+    --text: #111827;
+    --muted: #6b7280;
+    --good: #15803d;
+    --bad: #b91c1c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: var(--bg);
+    margin: 0;
+    padding: 20px;
+    color: var(--text);
+  }
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 8px 22px rgba(0,0,0,.08);
+    margin-bottom: 14px;
+  }
+  h1 {
+    margin: 0 0 12px;
+    font-size: 32px;
+  }
+  .sub {
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .field {
+    width: min(320px, 92%);
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    font-size: 16px;
+    margin: 6px auto;
+    display: block;
+  }
+  .menu-btn, .small-btn {
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .menu-btn {
+    padding: 14px 18px;
+    font-size: 19px;
+    width: min(340px, 92%);
+    margin: 8px auto;
+    display: block;
+  }
+  .small-btn {
+    padding: 10px 14px;
+    font-size: 15px;
+    background: #1f2937;
+    color: #fff;
+  }
+  .mode-wrap {
+    margin: 14px 0;
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .mode-label {
+    font-weight: 700;
+  }
+  .topbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .timer {
+    font-size: 24px;
+    font-weight: 800;
+  }
+  #progress {
+    font-size: 20px;
+    font-weight: 800;
+    min-height: 52px;
+    white-space: pre-line;
+    margin-bottom: 8px;
+  }
+  #sentence {
+    font-size: 28px;
+    line-height: 1.45;
+    max-width: 720px;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px auto 16px;
+    padding: 0 6px;
+  }
+  .highlight {
+    font-weight: 800;
+    text-decoration: underline;
+    color: #111827;
+    display: inline-block;
+    margin: 0 0.22em;
+    padding: 0 0.02em;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(120px, 150px));
+    gap: 12px;
+    justify-content: center;
+    margin-top: 14px;
+  }
+  .btn {
+    padding: 16px 10px;
+    font-size: 22px;
+    border: none;
+    border-radius: 14px;
+    color: white;
+    cursor: pointer;
+    font-weight: 800;
+    transition: transform .08s ease, opacity .12s ease;
+  }
+  .btn:active {
+    transform: scale(.98);
+  }
+  .btn:disabled {
+    opacity: .78;
+    cursor: not-allowed;
+  }
+  #result {
+    font-size: 30px;
+    margin-top: 18px;
+    font-weight: 800;
+    white-space: pre-line;
+    min-height: 78px;
+  }
+  .good { color: var(--good); }
+  .bad { color: var(--bad); }
+  .hidden { display: none !important; }
+  .note {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+  .stats-box {
+    text-align: left;
+    max-width: 420px;
+    margin: 0 auto;
+    line-height: 1.8;
+    font-size: 18px;
+  }
+
+  #confetti-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 9999;
+  }
+  .confetti {
+    position: fixed;
+    top: -20px;
+    width: 12px;
+    height: 18px;
+    opacity: 0.95;
+    border-radius: 2px;
+    animation: confetti-fall linear forwards;
+  }
+  @keyframes confetti-fall {
+    from {
+      transform: translate3d(0, -10px, 0) rotate(0deg);
+      opacity: 1;
+    }
+    to {
+      transform: translate3d(var(--drift), 110vh, 0) rotate(var(--spin));
+      opacity: 0;
+    }
+  }
+
+
+@media (max-width: 600px) {
+  body {
+    padding: 6px;
+  }
+  .wrap {
+    max-width: 100%;
+  }
+  .card {
+    border-radius: 12px;
+    padding: 10px 9px;
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-size: 22px;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .sub {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  .field {
+    width: 100%;
+    font-size: 16px;
+    padding: 11px;
+    margin: 4px auto;
+  }
+  .menu-btn {
+    width: 100%;
+    font-size: 16px;
+    padding: 11px 12px;
+    margin: 6px auto;
+    border-radius: 11px;
+  }
+  .small-btn {
+    font-size: 13px;
+    padding: 8px 10px;
+    border-radius: 10px;
+  }
+  .topbar {
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .timer {
+    font-size: 18px;
+  }
+  #progress {
+    font-size: 16px;
+    min-height: 0;
+    margin-bottom: 6px;
+    line-height: 1.25;
+  }
+  #sentence {
+    font-size: 28px;
+    line-height: 1.3;
+    min-height: 64px;
+    margin: 6px auto 10px;
+    padding: 0 2px;
+    display: block;
+    text-align: center;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: normal;
+    hyphens: none;
+  }
+  .highlight {
+    margin: 0 0.10em;
+  }
+  .grid {
+    grid-template-columns: repeat(2, minmax(110px, 1fr));
+    gap: 8px;
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  .btn {
+    width: 100%;
+    font-size: 22px;
+    padding: 10px 6px;
+    border-radius: 10px;
+  }
+  #result {
+    font-size: 16px;
+    min-height: 0;
+    margin-top: 8px;
+    line-height: 1.22;
+  }
+  #nextBtn {
+    margin-top: 8px !important;
+    font-size: 15px;
+    padding: 10px 12px;
+  }
+  .stats-box {
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  .note {
+    font-size: 11px;
+    margin-top: 6px;
+  }
+}
+
+
+.win { font-size: 34px; }
+.correct-answer { font-size: 26px; }
+.explain { font-size: 20px; }
+</style>
+</head>
+<body>
+<div id="confetti-layer" aria-hidden="true"></div>
+<div class="wrap">
+
+  <div id="login" class="card">
+    <h1>Lovci slovních druhů</h1>
+    <div class="sub">Vyplň údaje a zvol režim hry.</div>
+
+    <div id="rememberBox" class="hidden">
+      <div class="card" style="box-shadow:none;border:1px solid #e5e7eb;">
+        <div style="font-weight:700;margin-bottom:10px;">Pokračovat jako:</div>
+        <div id="rememberText" style="font-size:20px;font-weight:800;"></div>
+        <button class="menu-btn" style="background:#2563eb;color:#fff;" onclick="useRemembered()">POKRAČOVAT</button>
+        <button class="menu-btn" style="background:#e5e7eb;color:#111827;" onclick="showEditProfile()">ZMĚNIT ÚDAJE</button>
+      </div>
+    </div>
+
+    <div id="formBox">
+      <input id="name" class="field" placeholder="Jméno">
+      <input id="surname" class="field" placeholder="Příjmení">
+      <input id="class" class="field" placeholder="Třída">
+      <div class="note">Třídu piš velkými písmeny a čísly bez teček, např. 3A.</div>
+
+      <div class="mode-wrap">
+        <label class="mode-label"><input type="radio" name="mode" value="train" checked onchange="menuSwitchSound()"> TRÉNINK</label>
+        <label class="mode-label"><input type="radio" name="mode" value="hard" onchange="menuSwitchSound()"> NAOSTRO</label>
+      </div>
+
+      <button class="menu-btn" style="background:#111827;color:#fff;" onclick="start()">ZAČÍT HRÁT</button>
+    </div>
+  </div>
+
+  <div id="game" class="card hidden">
+    <div class="topbar">
+      <div class="timer">Čas: <span id="time">20</span></div>
+      <button class="small-btn" onclick="menu()">MENU</button>
+    </div>
+
+    <div id="progress"></div>
+    <div id="sentence"></div>
+
+    <div class="grid" id="grid"></div>
+    <div id="result"></div>
+    <button id="nextBtn" class="menu-btn hidden" style="background:#2563eb;color:#fff;margin-top:10px;">DALŠÍ</button>
+  </div>
+
+  <div id="statsScreen" class="card hidden">
+    <h1>Statistika</h1>
+    <div class="stats-box" id="statsText"></div>
+    <button class="menu-btn" style="background:#111827;color:#fff;" onclick="backToLogin()">ZPĚT</button>
+  </div>
+
+</div>
+
+<script>
+let db = [{"sentence": "Během cesty nepromluvil.", "highlightedWord": "Během", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Čtvery šaty ležely na posteli.", "highlightedWord": "Čtvery", "answerNumber": 4, "answerLabel": "ČÍSLOVKA", "difficult": true, "note": "druhová"}, {"sentence": "Kdo je vinen?", "highlightedWord": "vinen", "answerNumber": 2, "answerLabel": "PŘÍDAVNÉ JMÉNO", "difficult": true, "note": "jmenný tvar"}, {"sentence": "Odpověděl tiše.", "highlightedWord": "tiše", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "note": "", "difficult": false}, {"sentence": "Zůstal doma, neboť pršelo.", "highlightedWord": "neboť", "answerNumber": 8, "answerLabel": "SPOJKA", "note": "", "difficult": false}, {"sentence": "Je jich jenom pár.", "highlightedWord": "pár", "answerNumber": 4, "answerLabel": "ČÍSLOVKA", "note": "", "difficult": false}, {"sentence": "Taková změna znamenala zlepšení.", "highlightedWord": "zlepšení", "answerNumber": 1, "answerLabel": "PODSTATNÉ JMÉNO", "difficult": false, "note": ""}, {"sentence": "Dlouhé čekání vyvolalo nervozitu.", "highlightedWord": "nervozitu", "answerNumber": 1, "answerLabel": "PODSTATNÉ JMÉNO", "difficult": false, "note": ""}, {"sentence": "Dvojí výklad připadal možný.", "highlightedWord": "Dvojí", "answerNumber": 4, "answerLabel": "ČÍSLOVKA", "difficult": true, "note": "druhová"}, {"sentence": "Jeho slova vzbudila velkou radost.", "highlightedWord": "radost", "answerNumber": 1, "answerLabel": "PODSTATNÉ JMÉNO", "note": "", "difficult": false}, {"sentence": "Jeho slova vzbudila velkou naději.", "highlightedWord": "naději", "answerNumber": 1, "answerLabel": "PODSTATNÉ JMÉNO", "note": "", "difficult": false}, {"sentence": "Mnohokrát změnil názor.", "highlightedWord": "Mnohokrát", "answerNumber": 4, "answerLabel": "ČÍSLOVKA", "note": "", "difficult": false}, {"sentence": "Maminčina prosba zazněla tiše.", "highlightedWord": "Maminčina", "answerNumber": 2, "answerLabel": "PŘÍDAVNÉ JMÉNO", "difficult": false, "note": "přivlastňovací"}, {"sentence": "K němu se už nevrátil.", "highlightedWord": "němu", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Aniž cokoli řekl, odešel.", "highlightedWord": "Aniž", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": true, "note": ""}, {"sentence": "Právě on to řekl nahlas.", "highlightedWord": "Právě", "answerNumber": 9, "answerLabel": "ČÁSTICE", "difficult": true, "note": ""}, {"sentence": "Právě tehdy se vše změnilo.", "highlightedWord": "tehdy", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": true, "note": ""}, {"sentence": "Bohužel se už nevrátil.", "highlightedWord": "Bohužel", "answerNumber": 9, "answerLabel": "ČÁSTICE", "difficult": true, "note": ""}, {"sentence": "O něm se mluvilo dlouho.", "highlightedWord": "O", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Jeho mlčení vyjadřovalo nesouhlas.", "highlightedWord": "nesouhlas", "answerNumber": 1, "answerLabel": "PODSTATNÉ JMÉNO", "difficult": false, "note": ""}, {"sentence": "Uvnitř domu bylo ticho.", "highlightedWord": "Uvnitř", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Odpověděla, že ano.", "highlightedWord": "ano", "answerNumber": 9, "answerLabel": "ČÁSTICE", "note": "", "difficult": false}, {"sentence": "Jednal rozvážněji než ostatní.", "highlightedWord": "rozvážněji", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": false, "note": ""}, {"sentence": "Nuže, udělejme to tak.", "highlightedWord": "Nuže", "answerNumber": 9, "answerLabel": "ČÁSTICE", "difficult": true, "note": "neurčitá"}, {"sentence": "Nejen slíbil, ale i pomohl.", "highlightedWord": "ale i", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": false, "note": ""}, {"sentence": "Usednuv ke stolu, umlkl.", "highlightedWord": "Usednuv", "answerNumber": 5, "answerLabel": "SLOVESO", "difficult": true, "note": "přechodník"}, {"sentence": "Trojí vysvětlení ho neuspokojilo.", "highlightedWord": "Trojí", "answerNumber": 4, "answerLabel": "ČÍSLOVKA", "difficult": true, "note": "druhová"}, {"sentence": "Těmto důvodům rozuměl.", "highlightedWord": "Těmto", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Protože mlčel, nikdo mu nerozuměl.", "highlightedWord": "Protože", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": false, "note": ""}, {"sentence": "Obě změnily názor.", "highlightedWord": "Obě", "answerNumber": 4, "answerLabel": "ČÍSLOVKA", "note": "", "difficult": false}, {"sentence": "Jistě už vše pochopil.", "highlightedWord": "Jistě", "answerNumber": 9, "answerLabel": "ČÁSTICE", "difficult": true, "note": ""}, {"sentence": "Ale, kdopak nám to přišel?", "highlightedWord": "Ale", "answerNumber": 9, "answerLabel": "ČÁSTICE", "note": "", "difficult": false}, {"sentence": "Poněvadž už bylo pozdě, nečekal.", "highlightedWord": "Poněvadž", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": true, "note": ""}, {"sentence": "Před domem čekalo auto.", "highlightedWord": "Před", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "V diskusi zazněla důležitá myšlenka.", "highlightedWord": "myšlenka", "answerNumber": 1, "answerLabel": "PODSTATNÉ JMÉNO", "difficult": false, "note": ""}, {"sentence": "Mnohokrát o tom přemýšlel.", "highlightedWord": "Mnohokrát", "answerNumber": 4, "answerLabel": "ČÍSLOVKA", "difficult": false, "note": "násobná"}, {"sentence": "Odpověděl brzy.", "highlightedWord": "brzy", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "note": "", "difficult": false}, {"sentence": "Dnes odpověděl stručněji než včera.", "highlightedWord": "stručněji", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": false, "note": ""}, {"sentence": "Zatímco ostatní mlčeli, on mluvil.", "highlightedWord": "Zatímco", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": true, "note": ""}, {"sentence": "Prý se tam vrátí.", "highlightedWord": "Prý", "answerNumber": 9, "answerLabel": "ČÁSTICE", "note": "", "difficult": false}, {"sentence": "Tolikrát změnil názor.", "highlightedWord": "Tolikrát", "answerNumber": 4, "answerLabel": "ČÍSLOVKA", "note": "", "difficult": false}, {"sentence": "Poté se už nevrátil.", "highlightedWord": "Poté", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": false, "note": ""}, {"sentence": "Protože pršelo, zůstal doma.", "highlightedWord": "Protože", "answerNumber": 8, "answerLabel": "SPOJKA", "note": "", "difficult": false}, {"sentence": "Někoho zahlédl v dálce.", "highlightedWord": "Někoho", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Tento návrh vyvolal značné pobouření.", "highlightedWord": "pobouření", "answerNumber": 1, "answerLabel": "PODSTATNÉ JMÉNO", "difficult": false, "note": ""}, {"sentence": "O něm se dlouho mluvilo.", "highlightedWord": "něm", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Dvakrát se pokusil o vysvětlení.", "highlightedWord": "Dvakrát", "answerNumber": 4, "answerLabel": "ČÍSLOVKA", "difficult": false, "note": "násobná"}, {"sentence": "Kéž by to bylo tak jednoduché.", "highlightedWord": "Kéž", "answerNumber": 9, "answerLabel": "ČÁSTICE", "difficult": true, "note": ""}, {"sentence": "Díky tomu už nepřišel.", "highlightedWord": "Díky", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "note": "", "difficult": false}, {"sentence": "Ačkoli ho varovali, pokračoval dál.", "highlightedWord": "Ačkoli", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": true, "note": ""}, {"sentence": "Oba návrhy odmítl.", "highlightedWord": "Oba", "answerNumber": 4, "answerLabel": "ČÍSLOVKA", "difficult": false, "note": "základní"}, {"sentence": "Zůstal mu ještě nějaký čas dlužen.", "highlightedWord": "dlužen", "answerNumber": 2, "answerLabel": "PŘÍDAVNÉ JMÉNO", "difficult": true, "note": "jmenný tvar"}, {"sentence": "Kráčeje lesem, mlčel.", "highlightedWord": "Kráčeje", "answerNumber": 5, "answerLabel": "SLOVESO", "difficult": true, "note": "přechodník"}, {"sentence": "Obojí řešení mělo vady.", "highlightedWord": "Obojí", "answerNumber": 4, "answerLabel": "ČÍSLOVKA", "difficult": true, "note": "souborová"}, {"sentence": "Zatímco volal, my jsme spali.", "highlightedWord": "Zatímco", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": true, "note": ""}, {"sentence": "Pokolikáté to vlastně zkoušíš?", "highlightedWord": "Pokolikáté", "answerNumber": 4, "answerLabel": "ČÍSLOVKA", "difficult": false, "note": "tázací"}, {"sentence": "Nepřišel, totiž onemocněl.", "highlightedWord": "totiž", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": false, "note": ""}, {"sentence": "Záhy pochopil, že se zmýlil.", "highlightedWord": "Záhy", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": false, "note": ""}, {"sentence": "Ani on tomu nevěřil.", "highlightedWord": "Ani", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": false, "note": ""}, {"sentence": "Některých výtek litoval.", "highlightedWord": "Některých", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Naprosto přesně shrnul problém.", "highlightedWord": "Naprosto", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": false, "note": ""}, {"sentence": "Znenadání se rozhostilo ticho.", "highlightedWord": "Znenadání", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": false, "note": ""}, {"sentence": "Několikrát se omluvil.", "highlightedWord": "Několikrát", "answerNumber": 4, "answerLabel": "ČÍSLOVKA", "difficult": false, "note": "násobná"}, {"sentence": "Jeho slova vzbudila velkou obavu.", "highlightedWord": "obavu", "answerNumber": 1, "answerLabel": "PODSTATNÉ JMÉNO", "note": "", "difficult": false}, {"sentence": "Je tam prý velká zima.", "highlightedWord": "prý", "answerNumber": 9, "answerLabel": "ČÁSTICE", "note": "", "difficult": false}, {"sentence": "Dokonce se tam vrátí.", "highlightedWord": "Dokonce", "answerNumber": 9, "answerLabel": "ČÁSTICE", "note": "", "difficult": false}, {"sentence": "Lecčemu bych i porozuměl.", "highlightedWord": "Lecčemu", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Mluvil tišeji než obvykle.", "highlightedWord": "tišeji", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": false, "note": ""}, {"sentence": "Ukázal mi, co se potom stalo.", "highlightedWord": "co", "answerNumber": 3, "answerLabel": "ZÁJMENO", "note": "", "difficult": false}, {"sentence": "Začali se kolem něho nějak motat.", "highlightedWord": "kolem", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "note": "", "difficult": false}, {"sentence": "Pomocí klíče otevřel dveře.", "highlightedWord": "Pomocí", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Tudy se dříve nechodilo.", "highlightedWord": "Tudy", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": true, "note": ""}, {"sentence": "Odpověděl náhle.", "highlightedWord": "náhle", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "note": "", "difficult": false}, {"sentence": "V průběhu jednání se uklidnil.", "highlightedWord": "V průběhu", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "V souvislosti s tím padly nové otázky.", "highlightedWord": "V souvislosti s", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Bez něho by to nezvládli.", "highlightedWord": "něho", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Velmi stručně vysvětlil podstatu.", "highlightedWord": "Velmi", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": false, "note": ""}, {"sentence": "Přistoupiv blíž, nic neřekl.", "highlightedWord": "Přistoupiv", "answerNumber": 5, "answerLabel": "SLOVESO", "difficult": true, "note": "přechodník"}, {"sentence": "Naproti domu stálo staré auto.", "highlightedWord": "Naproti", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Beze slova vstal od stolu.", "highlightedWord": "od", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Učitelův výklad byl přehledný.", "highlightedWord": "Učitelův", "answerNumber": 2, "answerLabel": "PŘÍDAVNÉ JMÉNO", "difficult": false, "note": "přivlastňovací"}, {"sentence": "Jeho výklad byl přesný.", "highlightedWord": "přesný", "answerNumber": 2, "answerLabel": "PŘÍDAVNÉ JMÉNO", "difficult": false, "note": "jakostní"}, {"sentence": "Celý spis odevzdal včetně příloh.", "highlightedWord": "včetně", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Pršelo, tudíž zůstal doma.", "highlightedWord": "tudíž", "answerNumber": 8, "answerLabel": "SPOJKA", "note": "", "difficult": false}, {"sentence": "Jeho slova vzbudila velkou nejistotu.", "highlightedWord": "nejistotu", "answerNumber": 1, "answerLabel": "PODSTATNÉ JMÉNO", "note": "", "difficult": false}, {"sentence": "Z místnosti odešel tiše.", "highlightedWord": "Z", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Pod oknem ležela kniha.", "highlightedWord": "Pod", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Jeho slova vzbudila velkou pýchu.", "highlightedWord": "pýchu", "answerNumber": 1, "answerLabel": "PODSTATNÉ JMÉNO", "note": "", "difficult": false}, {"sentence": "Mezi lidmi panovalo napětí.", "highlightedWord": "Mezi", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Nikdo zaklepal na dveře.", "highlightedWord": "Nikdo", "answerNumber": 3, "answerLabel": "ZÁJMENO", "note": "", "difficult": false}, {"sentence": "Copak tomu opravdu věříš?", "highlightedWord": "Copak", "answerNumber": 9, "answerLabel": "ČÁSTICE", "difficult": true, "note": ""}, {"sentence": "Nezdržel se, tudíž odešel včas.", "highlightedWord": "tudíž", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": false, "note": ""}, {"sentence": "Případ byl uzavřen bez odkladu.", "highlightedWord": "byl uzavřen", "answerNumber": 5, "answerLabel": "SLOVESO", "difficult": true, "note": "trpný rod"}, {"sentence": "Po dlouhé debatě nastalo úplné ticho.", "highlightedWord": "ticho", "answerNumber": 1, "answerLabel": "PODSTATNÉ JMÉNO", "difficult": false, "note": ""}, {"sentence": "S čím přišel tentokrát?", "highlightedWord": "čím", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Ptal se, proč jsme přišli.", "highlightedWord": "proč", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "note": "", "difficult": false}, {"sentence": "Snad přišel.", "highlightedWord": "Snad", "answerNumber": 9, "answerLabel": "ČÁSTICE", "difficult": true, "note": ""}, {"sentence": "Těmito slovy vše uzavřel.", "highlightedWord": "Těmito", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Zeptal se, jak se mám.", "highlightedWord": "jak", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "note": "", "difficult": false}, {"sentence": "Její rozhodnutí bylo rázné.", "highlightedWord": "rázné", "answerNumber": 2, "answerLabel": "PŘÍDAVNÉ JMÉNO", "difficult": false, "note": "jakostní"}, {"sentence": "Leckdo o tom slyšel.", "highlightedWord": "Leckdo", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Přes varování pokračoval dál.", "highlightedWord": "Přes", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "note": "", "difficult": false}, {"sentence": "Ať se snažil sebevíc, nezvládl to.", "highlightedWord": "sebevíc", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": true, "note": ""}, {"sentence": "Teprve později to pochopil.", "highlightedWord": "Teprve", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": true, "note": ""}, {"sentence": "Řekl to sotva dvakrát.", "highlightedWord": "sotva", "answerNumber": 9, "answerLabel": "ČÁSTICE", "difficult": false, "note": ""}, {"sentence": "Ovšem s tím nesouhlasil.", "highlightedWord": "Ovšem", "answerNumber": 9, "answerLabel": "ČÁSTICE", "difficult": true, "note": ""}, {"sentence": "Opravdu přišel.", "highlightedWord": "Opravdu", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "note": "", "difficult": false}, {"sentence": "A přišel i on pozdě.", "highlightedWord": "A", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": false, "note": ""}, {"sentence": "Jeho rozhodnutí vyžadovalo velkou odvahu.", "highlightedWord": "odvahu", "answerNumber": 1, "answerLabel": "PODSTATNÉ JMÉNO", "difficult": false, "note": ""}, {"sentence": "Čemu vlastně věříš?", "highlightedWord": "Čemu", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Kdosi zaklepal na dveře.", "highlightedWord": "Kdosi", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Odhadl situaci přesně.", "highlightedWord": "přesně", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": false, "note": ""}, {"sentence": "Díky trpělivosti vše dokončil.", "highlightedWord": "Díky", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Snad jen tehdy se usmál.", "highlightedWord": "Snad", "answerNumber": 9, "answerLabel": "ČÁSTICE", "difficult": true, "note": ""}, {"sentence": "Je mu sotva šestnáct.", "highlightedWord": "sotva", "answerNumber": 9, "answerLabel": "ČÁSTICE", "difficult": false, "note": ""}, {"sentence": "Takového člověka nečekal.", "highlightedWord": "Takového", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Sice přišel, ale nemluvil s námi.", "highlightedWord": "Sice", "answerNumber": 9, "answerLabel": "ČÁSTICE", "difficult": true, "note": ""}, {"sentence": "Buď přijdeš včas, nebo nepřijdeš vůbec.", "highlightedWord": "nebo", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": false, "note": ""}, {"sentence": "Okamžitě změnil tón.", "highlightedWord": "Okamžitě", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": false, "note": ""}, {"sentence": "Její hlas byl klidný.", "highlightedWord": "klidný", "answerNumber": 2, "answerLabel": "PŘÍDAVNÉ JMÉNO", "difficult": false, "note": "jakostní"}, {"sentence": "Ničemu už nerozuměl.", "highlightedWord": "Ničemu", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Odpověděl jasně.", "highlightedWord": "jasně", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "note": "", "difficult": false}, {"sentence": "Jeho slova vzbudila velkou touhu.", "highlightedWord": "touhu", "answerNumber": 1, "answerLabel": "PODSTATNÉ JMÉNO", "note": "", "difficult": false}, {"sentence": "Přišel, dokonce se na nás i usmál.", "highlightedWord": "dokonce", "answerNumber": 9, "answerLabel": "ČÁSTICE", "difficult": true, "note": ""}, {"sentence": "Tam se už vracet nechtěl.", "highlightedWord": "Tam", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": true, "note": ""}, {"sentence": "Místo učení šel ven.", "highlightedWord": "Místo", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "note": "", "difficult": false}, {"sentence": "Uprostřed místnosti stál stůl.", "highlightedWord": "Uprostřed", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Okna byla zavřena.", "highlightedWord": "byla zavřena", "answerNumber": 5, "answerLabel": "SLOVESO", "difficult": true, "note": "trpný rod"}, {"sentence": "Jelikož už bylo pozdě, odešel.", "highlightedWord": "Jelikož", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": true, "note": ""}, {"sentence": "Odpověděl mimořádně klidně.", "highlightedWord": "mimořádně", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": false, "note": ""}, {"sentence": "Dopis byl odeslán včas.", "highlightedWord": "byl odeslán", "answerNumber": 5, "answerLabel": "SLOVESO", "difficult": true, "note": "trpný rod"}, {"sentence": "Vlivem únavy ztratil pozornost.", "highlightedWord": "Vlivem", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Jeho slova vzbudila velkou lítost.", "highlightedWord": "lítost", "answerNumber": 1, "answerLabel": "PODSTATNÉ JMÉNO", "note": "", "difficult": false}, {"sentence": "Když se setmělo, rozsvítil lampu.", "highlightedWord": "Když", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": false, "note": ""}, {"sentence": "Tetin názor ji překvapil.", "highlightedWord": "Tetin", "answerNumber": 2, "answerLabel": "PŘÍDAVNÉ JMÉNO", "difficult": false, "note": "přivlastňovací"}, {"sentence": "Ach, to snad není možné!", "highlightedWord": "Ach", "answerNumber": 10, "answerLabel": "CITOSLOVCE", "difficult": false, "note": ""}, {"sentence": "Tedy, pokračujme dál.", "highlightedWord": "Tedy", "answerNumber": 9, "answerLabel": "ČÁSTICE", "difficult": true, "note": ""}, {"sentence": "Naštěstí dorazil včas.", "highlightedWord": "Naštěstí", "answerNumber": 9, "answerLabel": "ČÁSTICE", "difficult": true, "note": ""}, {"sentence": "Hned přijď!", "highlightedWord": "Hned", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": true, "note": ""}, {"sentence": "Petr, jenž byl nemocný, nepřišel.", "highlightedWord": "jenž", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "S oběma souhlasil.", "highlightedWord": "oběma", "answerNumber": 4, "answerLabel": "ČÍSLOVKA", "difficult": false, "note": "pádový tvar"}, {"sentence": "K domu se vracel pomalu.", "highlightedWord": "K", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Přišel dříve, než čekali.", "highlightedWord": "než", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": false, "note": ""}, {"sentence": "Jeho tón byl smířlivý.", "highlightedWord": "smířlivý", "answerNumber": 2, "answerLabel": "PŘÍDAVNÉ JMÉNO", "difficult": false, "note": "jakostní"}, {"sentence": "Tolikrát ji už prosil.", "highlightedWord": "Tolikrát", "answerNumber": 4, "answerLabel": "ČÍSLOVKA", "difficult": false, "note": "násobná"}, {"sentence": "Zčásti měl pravdu.", "highlightedWord": "Zčásti", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": false, "note": ""}, {"sentence": "Vrátiv se domů, ihned ulehl.", "highlightedWord": "Vrátiv", "answerNumber": 5, "answerLabel": "SLOVESO", "difficult": true, "note": "přechodník"}, {"sentence": "Přestože se omluvil, neuspěl.", "highlightedWord": "Přestože", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": true, "note": ""}, {"sentence": "Bratrova připomínka byla trefná.", "highlightedWord": "Bratrova", "answerNumber": 2, "answerLabel": "PŘÍDAVNÉ JMÉNO", "difficult": false, "note": "přivlastňovací"}, {"sentence": "Spatřiv známou postavu, zastavil se.", "highlightedWord": "Spatřiv", "answerNumber": 5, "answerLabel": "SLOVESO", "difficult": true, "note": "přechodník"}, {"sentence": "Nepřišel, proto jsme začali bez něj.", "highlightedWord": "proto", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": false, "note": ""}, {"sentence": "Později svého výroku litoval.", "highlightedWord": "Později", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": false, "note": ""}, {"sentence": "Pokusil se vysvětlit, však marně.", "highlightedWord": "však", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": false, "note": ""}, {"sentence": "Vyndala na stůl tucet rohlíků.", "highlightedWord": "tucet", "answerNumber": 4, "answerLabel": "ČÍSLOVKA", "note": "", "difficult": false}, {"sentence": "Opodál stáli dva muži.", "highlightedWord": "Opodál", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": false, "note": ""}, {"sentence": "Odpověděl zřetelně.", "highlightedWord": "zřetelně", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "note": "", "difficult": false}, {"sentence": "Kudy vlastně odešel?", "highlightedWord": "Kudy", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": true, "note": ""}, {"sentence": "Obou řešení litoval.", "highlightedWord": "Obou", "answerNumber": 4, "answerLabel": "ČÍSLOVKA", "difficult": false, "note": "pádový tvar"}, {"sentence": "Kéž se tam vrátí.", "highlightedWord": "Kéž", "answerNumber": 9, "answerLabel": "ČÁSTICE", "note": "", "difficult": false}, {"sentence": "Dědečkovy hodiny se zastavily.", "highlightedWord": "Dědečkovy", "answerNumber": 2, "answerLabel": "PŘÍDAVNÉ JMÉNO", "difficult": false, "note": "přivlastňovací"}, {"sentence": "Dvakrát změnil názor.", "highlightedWord": "Dvakrát", "answerNumber": 4, "answerLabel": "ČÍSLOVKA", "note": "", "difficult": false}, {"sentence": "Některé názory odmítl.", "highlightedWord": "Některé", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Lecčemu už rozuměl.", "highlightedWord": "Lecčemu", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Vedle knihy ležel dopis.", "highlightedWord": "Vedle", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Vždyť jsem tě varoval.", "highlightedWord": "Vždyť", "answerNumber": 9, "answerLabel": "ČÁSTICE", "difficult": true, "note": ""}, {"sentence": "Odešel později než ostatní.", "highlightedWord": "později", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": false, "note": ""}, {"sentence": "Podél lesa se táhla pole.", "highlightedWord": "Podél", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "note": "", "difficult": false}, {"sentence": "Třebaže souhlasil, zůstal nejistý.", "highlightedWord": "Třebaže", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": true, "note": ""}, {"sentence": "Leckdo zaklepal na dveře.", "highlightedWord": "Leckdo", "answerNumber": 3, "answerLabel": "ZÁJMENO", "note": "", "difficult": false}, {"sentence": "Odpověděl pomalu.", "highlightedWord": "pomalu", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "note": "", "difficult": false}, {"sentence": "Raději se nevzdaluj.", "highlightedWord": "Raději", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "note": "", "difficult": false}, {"sentence": "Zůstali doma.", "highlightedWord": "doma", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": true, "note": ""}, {"sentence": "Jakmile pršelo, zůstal doma.", "highlightedWord": "Jakmile", "answerNumber": 8, "answerLabel": "SPOJKA", "note": "", "difficult": false}, {"sentence": "Říkal, že tam nebudou, což se nakonec i stalo.", "highlightedWord": "což", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": true, "note": ""}, {"sentence": "Tentýž závěr zopakoval znovu.", "highlightedWord": "Tentýž", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Přišel tam úplně sám.", "highlightedWord": "sám", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Ničeho si nevšímej.", "highlightedWord": "Ničeho", "answerNumber": 3, "answerLabel": "ZÁJMENO", "note": "", "difficult": false}, {"sentence": "Vyšed z domu, ohlédl se.", "highlightedWord": "Vyšed", "answerNumber": 5, "answerLabel": "SLOVESO", "difficult": true, "note": "přechodník"}, {"sentence": "Ničí výmluvy nepřijal.", "highlightedWord": "Ničí", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Všechen dobytek hnali na pastvu.", "highlightedWord": "Všechen", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": false, "note": ""}, {"sentence": "Podél řeky vedla úzká stezka.", "highlightedWord": "Podél", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Po cestě se neohlédl.", "highlightedWord": "Po", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Odpověděl pozdě.", "highlightedWord": "pozdě", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "note": "", "difficult": false}, {"sentence": "Vůči tobě nic nemám.", "highlightedWord": "Vůči", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": false, "note": "přivlastňovací"}, {"sentence": "Přišel jsem ohledně svého syna.", "highlightedWord": "ohledně", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Prý se tam kdysi skrýval poklad.", "highlightedWord": "Prý", "answerNumber": 9, "answerLabel": "ČÁSTICE", "difficult": true, "note": ""}, {"sentence": "Jestliže pršelo, zůstal doma.", "highlightedWord": "Jestliže", "answerNumber": 8, "answerLabel": "SPOJKA", "note": "", "difficult": false}, {"sentence": "Jako by nic pokračoval dál.", "highlightedWord": "Jako by", "answerNumber": 8, "answerLabel": "SPOJKA", "difficult": true, "note": ""}, {"sentence": "Kvůli mně tam nechoď.", "highlightedWord": "Kvůli", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "difficult": true, "note": ""}, {"sentence": "Nic mi neříkej.", "highlightedWord": "Nic", "answerNumber": 3, "answerLabel": "ZÁJMENO", "note": "", "difficult": false}, {"sentence": "To snad nemyslíš vážně.", "highlightedWord": "snad", "answerNumber": 9, "answerLabel": "ČÁSTICE", "difficult": true, "note": ""}, {"sentence": "Díky němu to mám hotové.", "highlightedWord": "Díky", "answerNumber": 7, "answerLabel": "PŘEDLOŽKA", "note": "", "difficult": false}, {"sentence": "Všichni byli připraveni.", "highlightedWord": "Všichni", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Je nemocen.", "highlightedWord": "nemocen", "answerNumber": 2, "answerLabel": "PŘÍDAVNÉ JMÉNO", "difficult": true, "note": "jmenný tvar"}, {"sentence": "Jaký to má užitek?", "highlightedWord": "Jaký", "answerNumber": 3, "answerLabel": "ZÁJMENO", "note": "", "difficult": false}, {"sentence": "Několikery klíče zmizely beze stopy.", "highlightedWord": "Několikery", "answerNumber": 4, "answerLabel": "ČÍSLOVKA", "difficult": true, "note": "druhová"}, {"sentence": "Kdokoli může přijít.", "highlightedWord": "Kdokoli", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Troje okna byla dokořán.", "highlightedWord": "dokořán", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "difficult": true, "note": ""}, {"sentence": "Něčí rada mu pomohla.", "highlightedWord": "Něčí", "answerNumber": 3, "answerLabel": "ZÁJMENO", "difficult": true, "note": ""}, {"sentence": "Odpověděl rychle.", "highlightedWord": "rychle", "answerNumber": 6, "answerLabel": "PŘÍSLOVCE", "note": "", "difficult": false}];
+let current = null;
+let time = 20;
+let timer = null;
+let mode = "train";
+let correctSeries = 0;
+let trainCorrect = 0;
+let trainWrong = 0;
+let audioCtx = null;
+let buttonsCreated = false;
+let waitingForNext = false;
+
+// anti-repeat controls
+let recentWords = [];
+let seriesWords = [];
+const RECENT_LIMIT = 12;
+
+const colors = ["#2563eb","#16a34a","#7c3aed","#ea580c","#dc2626","#0891b2","#92400e","#ca8a04","#db2777","#4b5563"];
+
+const wordTypeDefinitions = {
+  1: "ohebný slovní druh, který pojmenovává osoby, věci, vlastnosti děje nebo abstraktní pojmy",
+  2: "ohebný slovní druh, který vyjadřuje vlastnost nebo vztah podstatného jména",
+  3: "ohebný slovní druh, který zastupuje jméno nebo na něj ukazuje",
+  4: "ohebný slovní druh, který vyjadřuje počet nebo pořadí",
+  5: "ohebný slovní druh, který vyjadřuje děj, stav nebo změnu stavu",
+  6: "neohebný slovní druh, který vyjadřuje okolnosti děje",
+  7: "neohebný slovní druh, který vyjadřuje vztahy mezi slovy",
+  8: "neohebný slovní druh, který spojuje slova nebo věty",
+  9: "neohebný slovní druh, který uvozuje nebo modifikuje význam výpovědi",
+  10: "neohebný slovní druh, který vyjadřuje cit, vůli nebo zvuk"
+};
+
+function getDefinition(answerNumber) {
+  return wordTypeDefinitions[answerNumber] || "stručná definice není k dispozici";
+}
+
+function ensureAudio() {
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    if (!audioCtx) audioCtx = new Ctx();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    return audioCtx;
+  } catch (e) {
+    return null;
+  }
+}
+
+function tone(from, to, duration, vol) {
+  const ctx = ensureAudio();
+  if (!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  const now = ctx.currentTime;
+  osc.frequency.setValueAtTime(from, now);
+  osc.frequency.exponentialRampToValueAtTime(to, now + duration);
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(vol, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+  osc.start(now);
+  osc.stop(now + duration);
+}
+
+function soundCorrect() { tone(700, 950, 0.16, 0.08); }
+function soundWrong() {
+  tone(260, 110, 0.22, 0.32);
+  setTimeout(() => tone(170, 80, 0.26, 0.36), 90);
+}
+function soundWin() {
+  tone(523, 659, 0.24, 0.95);
+  setTimeout(() => tone(659, 784, 0.24, 1.00), 110);
+  setTimeout(() => tone(784, 1046, 0.30, 1.00), 220);
+  setTimeout(() => tone(1046, 1318, 0.34, 1.00), 360);
+}
+function launchConfetti() {
+  const layer = document.getElementById("confetti-layer");
+  if (!layer) return;
+  layer.innerHTML = "";
+  const colors = ["#ef4444", "#f59e0b", "#22c55e", "#3b82f6", "#a855f7", "#ec4899"];
+  const total = 220;
+  for (let i = 0; i < total; i++) {
+    const el = document.createElement("div");
+    el.className = "confetti";
+    el.style.left = `${Math.random() * 100}vw`;
+    el.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    el.style.animationDuration = `${2.8 + Math.random() * 2.2}s`;
+    el.style.animationDelay = `${Math.random() * 0.35}s`;
+    el.style.setProperty("--drift", `${-220 + Math.random() * 440}px`);
+    el.style.setProperty("--spin", `${360 + Math.random() * 1080}deg`);
+    el.style.width = `${8 + Math.random() * 8}px`;
+    el.style.height = `${10 + Math.random() * 12}px`;
+    layer.appendChild(el);
+  }
+  setTimeout(() => { layer.innerHTML = ""; }, 6000);
+}
+function menuSwitchSound() { tone(520, 620, 0.08, 0.04); }
+
+function loadRemembered() {
+  const remembered = localStorage.getItem("lovci_profile");
+  if (!remembered) return;
+  const profile = JSON.parse(remembered);
+  document.getElementById("rememberText").innerText = `${profile.name} ${profile.surname} (${profile.className})`;
+  document.getElementById("rememberBox").classList.remove("hidden");
+  document.getElementById("formBox").classList.add("hidden");
+}
+
+function useRemembered() {
+  document.getElementById("login").dataset.useRemembered = "1";
+  start();
+}
+
+function showEditProfile() {
+  document.getElementById("rememberBox").classList.add("hidden");
+  document.getElementById("formBox").classList.remove("hidden");
+  document.getElementById("login").dataset.useRemembered = "0";
+}
+
+function createButtons() {
+  const g = document.getElementById("grid");
+  if (buttonsCreated) return;
+  const rows = 5;
+  const cols = 2;
+  for (let pos = 1; pos <= 10; pos++) {
+    const row = Math.floor((pos - 1) / cols);
+    const col = (pos - 1) % cols;
+    const label = col * rows + row + 1;
+    const b = document.createElement("button");
+    b.className = "btn";
+    b.style.background = colors[label - 1];
+    b.innerText = label;
+    b.onclick = () => answer(label);
+    g.appendChild(b);
+  }
+  buttonsCreated = true;
+}
+
+function disableButtons(flag) {
+  document.querySelectorAll("#grid .btn").forEach(btn => btn.disabled = flag);
+}
+
+function start() {
+  mode = document.querySelector('input[name="mode"]:checked').value;
+
+  let profile = null;
+  if (document.getElementById("login").dataset.useRemembered === "1") {
+    const remembered = localStorage.getItem("lovci_profile");
+    if (remembered) profile = JSON.parse(remembered);
+  } else {
+    const name = document.getElementById("name").value.trim();
+    const surname = document.getElementById("surname").value.trim();
+    const className = document.getElementById("class").value.trim().toUpperCase();
+    if (!name || !surname || !className) {
+      alert("Vyplň jméno, příjmení i třídu.");
+      return;
+    }
+    profile = { name, surname, className };
+    localStorage.setItem("lovci_profile", JSON.stringify(profile));
+  }
+
+  document.getElementById("login").classList.add("hidden");
+  document.getElementById("statsScreen").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+
+  createButtons();
+  correctSeries = 0;
+  trainCorrect = 0;
+  trainWrong = 0;
+  recentWords = [];
+  seriesWords = [];
+  nextQuestion();
+}
+
+function menu() {
+  clearInterval(timer);
+  document.getElementById("game").classList.add("hidden");
+  document.getElementById("login").classList.remove("hidden");
+  document.getElementById("result").innerHTML = "";
+  const nextBtn = document.getElementById("nextBtn"); if (nextBtn) nextBtn.classList.add("hidden");
+  document.getElementById("rememberBox").classList.add("hidden");
+  document.getElementById("formBox").classList.remove("hidden");
+  document.getElementById("login").dataset.useRemembered = "0";
+}
+
+function backToLogin() {
+  document.getElementById("statsScreen").classList.add("hidden");
+  document.getElementById("login").classList.remove("hidden");
+  document.getElementById("rememberBox").classList.add("hidden");
+  document.getElementById("formBox").classList.remove("hidden");
+  document.getElementById("login").dataset.useRemembered = "0";
+}
+
+function updateProgress() {
+  if (mode === "hard") {
+    document.getElementById("progress").innerText = "ZVLÁDNUTÁ SLOVA: " + correctSeries + " / 10";
+  } else {
+    document.getElementById("progress").innerText =
+      "ZVLÁDNUTÁ SLOVA: " + trainCorrect + "\nNEZVLÁDNUTÁ SLOVA: " + trainWrong;
+  }
+}
+
+function chooseQuestion() {
+  let candidates = db.filter(q => !recentWords.includes(q.highlightedWord));
+  if (mode === "hard") {
+    candidates = candidates.filter(q => !seriesWords.includes(q.highlightedWord));
+  }
+
+  if (candidates.length === 0) {
+    candidates = db.filter(q => mode !== "hard" || !seriesWords.includes(q.highlightedWord));
+  }
+  if (candidates.length === 0) {
+    candidates = db.slice();
+  }
+
+  return candidates[Math.floor(Math.random() * candidates.length)];
+}
+
+function registerWord(word) {
+  recentWords.push(word);
+  if (recentWords.length > RECENT_LIMIT) recentWords.shift();
+  if (mode === "hard" && !seriesWords.includes(word)) {
+    seriesWords.push(word);
+  }
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function highlightSentence(sentence, word) {
+  const safeSentence = String(sentence || "");
+  const safeWord = String(word || "");
+  const idx = safeSentence.indexOf(safeWord);
+  if (idx === -1 || !safeWord) return escapeHtml(safeSentence);
+
+  const before = safeSentence.slice(0, idx);
+  const match = safeSentence.slice(idx, idx + safeWord.length);
+  const after = safeSentence.slice(idx + safeWord.length);
+
+  return escapeHtml(before) + '<span class="highlight">' + escapeHtml(match) + '</span>' + escapeHtml(after);
+}
+
+function nextQuestion() {
+  clearInterval(timer);
+  waitingForNext = false;
+  disableButtons(false);
+  time = 20;
+  document.getElementById("time").innerText = (mode === "hard") ? time : "∞";
+  updateProgress();
+
+  current = chooseQuestion();
+  registerWord(current.highlightedWord);
+
+  document.getElementById("sentence").innerHTML = highlightSentence(current.sentence, current.highlightedWord);
+  document.getElementById("result").innerHTML = "";
+  const nextBtn = document.getElementById("nextBtn");
+  if (nextBtn) nextBtn.classList.add("hidden");
+
+  if (mode === "hard") {
+    timer = setInterval(() => {
+      time--;
+      document.getElementById("time").innerText = time;
+      if (time <= 0) fail();
+    }, 1000);
+  }
+}
+
+function answer(n) {
+  if (!current || waitingForNext) return;
+  clearInterval(timer);
+  disableButtons(true);
+
+  if (n === current.answerNumber) {
+    soundCorrect();
+    document.getElementById("result").innerText = "SPRÁVNĚ";
+
+    if (mode === "train") {
+      trainCorrect++;
+      updateProgress();
+      setTimeout(nextQuestion, 1200);
+    } else {
+      correctSeries++;
+      updateProgress();
+
+      if (correctSeries >= 10) {
+        soundWin();
+        launchConfetti();
+        document.getElementById("result").innerHTML = '<span class="win">MÁŠ JEDNIČKU</span>';
+        return;
+      }
+      setTimeout(nextQuestion, 1000);
+    }
+  } else {
+    soundWrong();
+
+    if (mode === "train") {
+      trainWrong++;
+      waitingForNext = true;
+      document.getElementById("result").innerHTML =
+        'CHYBA<br><span class="correct-answer">SPRÁVNĚ: ' + current.answerLabel +
+        '</span><br><span class="explain">(' + getDefinition(current.answerNumber) + ')</span>';
+      const nextBtn = document.getElementById("nextBtn");
+      if (nextBtn) {
+        nextBtn.classList.remove("hidden");
+        nextBtn.disabled = false;
+        nextBtn.textContent = "DALŠÍ";
+      }
+      updateProgress();
+    } else {
+      document.getElementById("result").innerText = "SMŮLA";
+      correctSeries = 0;
+      seriesWords = [];
+      updateProgress();
+      setTimeout(nextQuestion, 1500);
+    }
+  }
+}
+
+function fail() {
+  clearInterval(timer);
+  disableButtons(true);
+  soundWrong();
+  document.getElementById("result").innerText = "VYPRŠEL ČAS";
+  correctSeries = 0;
+  seriesWords = [];
+  updateProgress();
+  setTimeout(nextQuestion, 1500);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const nextBtn = document.getElementById("nextBtn");
+  if (nextBtn) {
+    nextBtn.addEventListener("click", () => {
+      if (!waitingForNext) return;
+      nextQuestion();
+    });
+  }
+  loadRemembered();
+});
+</script>
+</body>
+</html>
